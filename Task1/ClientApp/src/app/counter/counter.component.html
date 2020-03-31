@@ -4,8 +4,10 @@
 
 <p aria-live="polite">Current count: <strong>{{ currentCount }}</strong></p>
 
-<span *onlyForScreen="desktop">shown on big screens</span>
-<span *onlyForScreen="mobile">shown on small screens</span>
+<span *onlyForScreen="'desktop'">shown on big screens</span>
+<br />
+<span *onlyForScreen="'mobile'">shown on small screens</span>
+<br />
 show always
 <br />
 <button class="btn btn-primary" (click)="incrementCounter()">Increment</button>

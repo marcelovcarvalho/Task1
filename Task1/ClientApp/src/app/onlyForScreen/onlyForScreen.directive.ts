@@ -1,42 +1,57 @@
-import { Directive, ElementRef, Input, Renderer2 } from '@angular/core';
+import { Directive, EmbeddedViewRef, Inject, Input, TemplateRef, ViewContainerRef } from '@angular/core';
 import { fromEvent, Observable, Subscription } from "rxjs";
 import { IConfig } from './IConfig';
-import { Config } from './config';
 
 @Directive({
-  selector: '[onlyForScreen]',
-  providers: [{ provide: 'IConfig', useClass: Config }]
+  selector: '[onlyForScreen]'
 })
 export class OnlyForScreentDirective {
-  @Input() onlyForScreen: string;
 
+  private elementScreen: string;
   private resizeObservable$: Observable<Event>;
   private resizeSubscription$: Subscription;
+  private embeded: EmbeddedViewRef<any>;
 
-  constructor(el: ElementRef, private config: Config, private renderer: Renderer2) {
+  constructor(private templateRef: TemplateRef<any>, private viewContainer: ViewContainerRef, @Inject("IConfig") private config: IConfig) {
     
-      this.resizeObservable$ = fromEvent(window, 'resize');
+    this.resizeObservable$ = fromEvent(window, 'resize');
 
     this.resizeSubscription$ = this.resizeObservable$.subscribe(event => {
-      this.resizeCallback(el.nativeElement);
+      this.resizeCallback();
     });
-    this.resizeCallback(el.nativeElement);
-
+    
     
   }
 
-  private resizeCallback = element => {
-    let viewportWidth: number = window.innerWidth;
-    
+  @Input() set onlyForScreen(onlyForScreen: string) {
+    this.elementScreen = onlyForScreen;
+    this.resizeCallback();
+  }
 
-    if (this.onlyForScreen == "mobile" && viewportWidth < this.config.mobile) {
-      this.renderer.removeClass(element, 'hide');
-    } else if (this.onlyForScreen == "tablet" && this.config.mobile <= viewportWidth && viewportWidth < this.config.tablet) {
-      this.renderer.removeClass(element, 'hide');
-    } else if (this.onlyForScreen == "desktop" && this.config.tablet <= viewportWidth) {
-      this.renderer.removeClass(element, 'hide');
-    } else {
-      //this.renderer.addClass(element, 'ng-hide');
-    };
+  private shouldHide = (onlyForScreen: string) => {
+    let viewportWidth: number = window.innerWidth;
+
+    if (onlyForScreen == "mobile" && viewportWidth < this.config.mobile) {
+      return false;
+    } else if (onlyForScreen == "tablet" && this.config.mobile <= viewportWidth && viewportWidth < this.config.tablet) {
+      return false;
+    } else if (onlyForScreen == "desktop" && this.config.tablet <= viewportWidth) {
+      return false;
+    }
+
+    return true;
+  };
+
+  private resizeCallback = () => {
+    if (this.embeded == null) {
+      this.viewContainer.clear();
+      this.embeded = this.viewContainer.createEmbeddedView(this.templateRef);
+    }
+
+    if (!this.shouldHide(this.elementScreen)) {
+      this.embeded.rootNodes[0].classList.remove("hidden");
+      return;
+    }
+    this.embeded.rootNodes[0].classList.add("hidden");
   }
 }
