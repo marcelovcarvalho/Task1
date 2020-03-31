@@ -27,9 +27,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="ClientApp\src\app\onlyForScreen\onlyForScreen.directive.ts" />
+    <None Remove="ClientApp\src\app\onlyForScreen\IConfig.ts" />
+    <None Remove="ClientApp\src\app\onlyForScreen\config.ts" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\onlyForScreen\onlyForScreen.directive.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\onlyForScreen\IConfig.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\onlyForScreen\config.ts" />
   </ItemGroup>
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->

@@ -10,6 +10,7 @@ import { HomeComponent } from './home/home.component';
 import { CounterComponent } from './counter/counter.component';
 import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { OnlyForScreentDirective } from './onlyForScreen/onlyForScreen.directive';
+import { Config } from './onlyForScreen/config';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,7 @@ import { OnlyForScreentDirective } from './onlyForScreen/onlyForScreen.directive
       { path: 'fetch-data', component: FetchDataComponent },
     ])
   ],
-  providers: [],
+  providers: [{ provide: 'IConfig', useClass: Config }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

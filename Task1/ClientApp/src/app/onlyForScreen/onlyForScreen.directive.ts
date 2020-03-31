@@ -1,8 +1,11 @@
 import { Directive, ElementRef, Input, Renderer2 } from '@angular/core';
 import { fromEvent, Observable, Subscription } from "rxjs";
+import { IConfig } from './IConfig';
+import { Config } from './config';
 
 @Directive({
-  selector: '[onlyForScreen]'
+  selector: '[onlyForScreen]',
+  providers: [{ provide: 'IConfig', useClass: Config }]
 })
 export class OnlyForScreentDirective {
   @Input() onlyForScreen: string;
@@ -10,34 +13,30 @@ export class OnlyForScreentDirective {
   private resizeObservable$: Observable<Event>;
   private resizeSubscription$: Subscription;
 
-  constructor(el: ElementRef, private renderer: Renderer2) {
-    let config: IConfig;
-    this.resizeObservable$ = fromEvent(window, 'resize');
-    this.resizeSubscription$ = this.resizeObservable$.subscribe(event => {
-      let viewportWidth: number = window.innerWidth;
+  constructor(el: ElementRef, private config: Config, private renderer: Renderer2) {
+    
+      this.resizeObservable$ = fromEvent(window, 'resize');
 
-      if (this.onlyForScreen == "mobile" && viewportWidth < this.config.mobile) {
-        renderer.removeClass(el.nativeElement, 'ng-hide');
-      } else if (this.onlyForScreen == "tablet" && config.mobile <= viewportWidth && viewportWidth < config.tablet) {
-        renderer.removeClass(el.nativeElement, 'ng-hide');
-      } else if (this.onlyForScreen == "desktop" && config.tablet <= viewportWidth) {
-        renderer.removeClass(el.nativeElement, 'ng-hide');
-      } else {
-        renderer.addClass(el.nativeElement, 'ng-hide');
-      }
+    this.resizeSubscription$ = this.resizeObservable$.subscribe(event => {
+      this.resizeCallback(el.nativeElement);
     });
+    this.resizeCallback(el.nativeElement);
 
     
   }
-}
 
-interface IConfig {
-  mobile: number;
-  tablet: number;
-}
+  private resizeCallback = element => {
+    let viewportWidth: number = window.innerWidth;
+    
 
-export class Config implements IConfig {
-  mobile: number = 768;
-  tablet: number = 992;
-
+    if (this.onlyForScreen == "mobile" && viewportWidth < this.config.mobile) {
+      this.renderer.removeClass(element, 'hide');
+    } else if (this.onlyForScreen == "tablet" && this.config.mobile <= viewportWidth && viewportWidth < this.config.tablet) {
+      this.renderer.removeClass(element, 'hide');
+    } else if (this.onlyForScreen == "desktop" && this.config.tablet <= viewportWidth) {
+      this.renderer.removeClass(element, 'hide');
+    } else {
+      //this.renderer.addClass(element, 'ng-hide');
+    };
+  }
 }
